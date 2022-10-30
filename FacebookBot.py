@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.common.exceptions import *
+import pyautogui
 
 from bs4 import BeautifulSoup
 import lxml
@@ -59,12 +60,20 @@ except ElementNotInteractableException:
     try:
         driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div[1]/div/div/div/div/div/div/div/div/div[1]/div/div[2]/div/div[1]/h2/span/span/span/a/span[1]').click()
     except NoSuchElementException:
-        print('try again')
-        time.sleep(1)
-        soup = BeautifulSoup(driver.page_source,'lxml')   
-        fburl = soup.find('span',class_='xt0psk2').find('a')['href']
-        driver.get(fburl)
-        time.sleep(2)
+        try:
+            print('try again')
+            time.sleep(1)
+            soup = BeautifulSoup(driver.page_source,'lxml')   
+            fburl = soup.find('span',class_='xt0psk2').find('a')['href']
+            driver.get(fburl)
+            time.sleep(2)
+        except:
+            print('try again')
+            pyautogui.moveTo(813,309)
+            pyautogui.click()
+            # this can also be applied on clicking through cookies
+            # to get the exact position you want to click at run:
+            # pyautogui.position()        
 
 # Scrape the profile stats
 soup = BeautifulSoup(driver.page_source,'lxml')
