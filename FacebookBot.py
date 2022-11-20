@@ -17,12 +17,27 @@ import lxml
 import time
 import pandas as pd
 
+# Imports for fixing the driver bug (Window closes unintended)
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+
 # I'm setting the driver for Selenium
 driver = webdriver.Chrome('[path to your driver]\chromedriver.exe')
 driver.get('https://www.facebook.com/')
+driver.maximize_window()
+
 # Click through cookie-banner
-WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'_4t2a')))
-driver.find_element('xpath','/html/body/div[3]/div[2]/div/div/div/div/div[3]/button[1]').click()
+try:
+    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'_4t2a')))
+    driver.find_element('xpath','/html/body/div[3]/div[2]/div/div/div/div/div[3]/button[1]').click()
+except:
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("detach", True)
+    driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+    driver.maximize_window()
+    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'_4t2a')))
+    driver.find_element('xpath','/html/body/div[3]/div[2]/div/div/div/div/div[3]/button[1]').click()
 
 # Push your Name and Password to the Website and login
 username = '[your username]'
