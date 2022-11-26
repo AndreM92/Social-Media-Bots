@@ -13,3 +13,7 @@ I've written this code to observe german corporate Social Media profiles. It may
 - scraping of every specific emotional reaction
 - saving the data in DataFrames 
 - and finally an export of the DataFrames to an excel file 
+
+## InstagramBot
+
+Still incomplete but under way
