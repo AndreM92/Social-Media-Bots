@@ -21,7 +21,7 @@ import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-
+##############################################################################
 # I'm setting the driver for Selenium
 driver = webdriver.Chrome('[path to your driver]\chromedriver.exe')
 driver.get('https://www.facebook.com/')
@@ -38,7 +38,8 @@ except:
     driver.maximize_window()
     WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'_4t2a')))
     driver.find_element('xpath','/html/body/div[3]/div[2]/div/div/div/div/div[3]/button[1]').click()
-
+    
+##############################################################################
 # Push your Name and Password to the Website and login
 username = '[your username]'
 password = '[your password]'
@@ -52,44 +53,60 @@ pwslot.clear()
 pwslot.send_keys(password)
 driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]/button').click()
 
+##############################################################################
 # Searching process on Facebook
 examObject = 'comdirect'
-time.sleep(3)
-try:
-    searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
-except NoSuchElementException:
-    driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label').click()
-    searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
-searchbox.clear()
-searchbox.send_keys(examObject)
-searchbox.send_keys(Keys.ENTER)
+def search(examObject):
+    examObject = examObject
+    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'xe3v8dz')))
+    try:
+        searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
+    except NoSuchElementException:
+        driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label').click()
+        searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
+    searchbox.clear()
+    searchbox.send_keys(examObject)
+    searchbox.send_keys(Keys.ENTER)
+search(examObject)
 
 # Getting on a profile turned out to be the biggest difficulty
 # hence we are trying three different approaches
-time.sleep(1)
-try:
-    driver.find_element(By.CLASS_NAME,'xt0psk2').click()
-except ElementNotInteractableException:
-    print('try again')
-    time.sleep(1)
+def getpage():
     try:
-        driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div[1]/div/div/div/div/div/div/div/div/div[1]/div/div[2]/div/div[1]/h2/span/span/span/a/span[1]').click()
-    except NoSuchElementException:
+        WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'xe3v8dz')))
+        driver.find_element(By.CLASS_NAME,'xt0psk2').click()
+    except ElementNotInteractableException:
+        print('try again')
+        time.sleep(1)
         try:
+            driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div[1]/div/div/div/div/div/div/div/div/div[1]/div/div[2]/div/div[1]/h2/span/span/span/a/span[1]').click()
+        except NoSuchElementException:
             print('try again')
             time.sleep(1)
             soup = BeautifulSoup(driver.page_source,'lxml')   
             fburl = soup.find('span',class_='xt0psk2').find('a')['href']
             driver.get(fburl)
             time.sleep(2)
-        except:
-            print('try again')
-            pyautogui.moveTo(813,309)
+getpage()
+    
+# check if you are on the right page
+def checkpage():
+    currentUrl = driver.current_url
+    if not examObject in currentUrl:
+        if 'data_policy' in currentUrl:
+            pyautogui.moveTo(1855,188)
             pyautogui.click()
-            # this can also be applied on clicking through cookies
-            # to get the exact position you want to click at run:
-            # pyautogui.position()        
+        else:
+            pyautogui.moveTo(25,62)
+            pyautogui.click()
+        WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'xe3v8dz')))
+        search(examObject)
+        time.sleep(1)
+        getpage()
+        time.sleep(2)
+checkpage()
 
+################################################################################################################
 # Scrape the profile stats
 soup = BeautifulSoup(driver.page_source,'lxml')
 stats = soup.find_all('span',class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x6prxxf xvq8zen xo1l8bm xzsf02u')
@@ -183,8 +200,9 @@ for p in postings:
                     emotions[emoList.index(l)] = (e['aria-label'].split(': ')[1].split(' ')[0])
             except:
                 pass
-    emoData.append(emotions)        
-
+    emoData.append(emotions)       
+    
+##############################################################################
 # save all pictures with screenshots
 saving_path = 'C:/Users/andre/Documents/Python/Web_Scraper/Social-Media-Bots/Images/'
 for i in allimagelinks:
@@ -195,6 +213,7 @@ for i in allimagelinks:
     if allimagelinks.index(i) == 50:
         break
 
+##############################################################################
 # Three Dataframes for three categories
 dfProfileStats = pd.DataFrame({'Name':[examObject],'pagelikes':[pagelikes], 'follower':[follower],'visits':[visits]})                
 dfPostings = pd.DataFrame(postData, columns = ['date','content','likes','comments','shares','image links','links']) 
