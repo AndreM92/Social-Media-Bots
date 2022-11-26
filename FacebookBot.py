@@ -44,14 +44,24 @@ except:
 username = '[your username]'
 password = '[your password]'
 
-WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[1]/div[1]/div[1]/div/div/div/div[1]/div/img')))
-nameslot = driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[1]/div[1]/input')
-nameslot.clear()                        
-nameslot.send_keys(username)
-pwslot = driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[1]/div[2]/div/input')
-pwslot.clear()
-pwslot.send_keys(password)
-driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]/button').click()
+def login(username,password):
+    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[1]/div[1]/div[1]/div/div/div/div[1]/div/img')))
+    nameslot = driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[1]/div[1]/input')
+    nameslot.clear()                        
+    nameslot.send_keys(username)
+    pwslot = driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[1]/div[2]/div/input')
+    pwslot.clear()
+    pwslot.send_keys(password)
+    driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]/button').click()
+    
+try:
+    login(username,password)
+except:
+    try:
+        time.sleep(1)
+        login(username,password)
+    except:
+        print('There is something wrong with the page')
 
 ##############################################################################
 # Searching process on Facebook
