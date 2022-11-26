@@ -62,6 +62,10 @@ except:
         login(username,password)
     except:
         print('There is something wrong with the page')
+        # closing the browser window
+        driver.close()
+        # closing the program
+        exit()
 
 # Second Cookie Banner
 try:
