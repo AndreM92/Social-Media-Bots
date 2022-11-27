@@ -6,6 +6,7 @@ I've written this code to observe german corporate Social Media profiles. It may
 ## FacebookBot Features:
 
 - automated login
+- several ways to get around cookie banners
 - searching for and getting on a profile
 - collection of the profile stats
 - scrolling down the feed until you reach a specific date
@@ -14,6 +15,10 @@ I've written this code to observe german corporate Social Media profiles. It may
 - saving the data in DataFrames 
 - and finally an export of the DataFrames to an excel file 
 
-## InstagramBot
+## InstagramBot (still incomplete but in the works)
 
-Still incomplete but under way
+- automated login
+- several ways to get around cookie banners
+- searching for and getting on a profile
+- collection of the profile stats
+- saving the data in DataFrames 
