@@ -122,13 +122,28 @@ except NoSuchElementException:
 time.sleep(2)
 
 ##############################################################################
-# Scraping the page
-class Scraper:
-    def scrape(self):
-        url = driver.current_url
+# Scraping the profile stats
+class ScrapedProfile:
+    def __init__(self):
+        # to prevent errors:
+        self.name,self.url,self.follower,self.following,self.postings,self.desc,self.link = np.array(['' for i in range(0,7)])
+        
+        self.url = driver.current_url
         soup = BeautifulSoup(driver.page_source,'lxml')
-        postings,follower,following = [e.text for e in soup.find_all('span',class_='_ac2a')]
+        self.postings,self.follower,self.following = [e.text for e in soup.find_all('span',class_='_ac2a')]
         descrhtml = soup.find('div',class_='_aa_c')
-        descraw = descrhtml.text
+        if len(descrhtml) > 0:
+            dl = [e for e in descrhtml]
+            self.name = dl[0].text
+            if len(descrhtml) > 1:
+                self.desc = ('\n').join([e.text for e in descrhtml][1:])
+                self.link = descrhtml.find('a')['href']
 
-profilestats = Scraper().scrape()
+# I'm creating my first DataFrame with the profile stats
+data = [profile.name,profile.url,profile.follower,profile.following,profile.postings,profile.desc,profile.link]
+dfProfiles = pd.DataFrame(columns = ['name','url','follower','following','postings','desc','link'])
+
+# Run this for every profile you want to scrape (after moving to the target page)
+profile = ScrapedProfile()
+dfProfiles.loc[len(dfProfiles)] = [profile.name,profile.url,profile.follower,profile.following,profile.postings,profile.desc,profile.link]
+print(dfProfiles)
