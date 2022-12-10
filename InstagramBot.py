@@ -60,8 +60,9 @@ except:
     try:
         time.sleep(1)
         login(username,password)
-    except:
+    except Exception as e: 
         print('There is something wrong with the page')
+        print(repr(e))
         # closing the browser window
         driver.close()
         # closing the program
