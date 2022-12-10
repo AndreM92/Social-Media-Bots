@@ -60,8 +60,9 @@ except:
     try:
         time.sleep(1)
         login(username,password)
-    except:
-        print('There is something wrong with the page')
+    except Exception as e: 
+    print('There is something wrong with the page')
+    print(repr(e))
 
 ##############################################################################
 # Searching process on Facebook
