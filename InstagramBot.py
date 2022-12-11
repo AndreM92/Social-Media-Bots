@@ -16,17 +16,22 @@ import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-
-# Setting options
-
-options = webdriver.ChromeOptions()
-options.add_experimental_option("detach", True)
-driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+##############################################################################
+# regular driver usage
+# I'm setting the driver for Selenium
+driver = webdriver.Chrome('[path to your driver]\chromedriver.exe')
 driver.maximize_window()
-driver.get('[path to your driver]\chromedriver.exe')
-time.sleep(2)
+driver.get('https://www.instagram.com/')
 
-# Pyautogui Investigation process
+# If this doesn't work:
+# options = webdriver.ChromeOptions()
+# options.add_experimental_option("detach", True)
+# driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+# driver.maximize_window()
+# driver.get('https://www.instagram.com/')
+# time.sleep(2)
+
+# Pyautogui investigation process
 time.sleep(3)
 x,y = pyautogui.position()
 print(str(x)+ ','+ str(y))
