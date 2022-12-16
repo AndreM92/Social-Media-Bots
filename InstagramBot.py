@@ -17,33 +17,31 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 ##############################################################################
-# regular driver usage
-# I'm setting the driver for Selenium
+# Login process
+
+# Get to the login page
 driver = webdriver.Chrome('[path to your driver]\chromedriver.exe')
+loginpage = 'https://www.instagram.com/accounts/login/'
+driver.get(loginpage)
 driver.maximize_window()
-driver.get('https://www.instagram.com/')
+time.sleep(1)
+if loginpage != driver.current_url:
+    fixDriverbug()
 
-# If this doesn't work:
-# options = webdriver.ChromeOptions()
-# options.add_experimental_option("detach", True)
-# driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
-# driver.maximize_window()
-# driver.get('https://www.instagram.com/')
-# time.sleep(2)
-
-# Pyautogui investigation process
-time.sleep(3)
-x,y = pyautogui.position()
-print(str(x)+ ','+ str(y))
-# 930,777
-
-# Click through the Cookie Banner
+# Click through the first Cookie Banner (shown with four different methods)
 try:
     driver.find_element('xpath','//*[@id="mount_0_0_dK"]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/button[1]').click()
 except NoSuchElementException:
-    time.sleep(1)
-    pyautogui.moveTo(930,777)
-    pyautogui.click()
+    try:
+        driver.find_element('xpath',"//*[text()='Nur erforderliche Cookies erlauben']").click()
+        time.sleep(1)
+    except:
+        try:
+            driver.find_element(By.CLASS_NAME,'_a9--').click()
+        except Exception as e:
+            print(repr(e))
+            pyautogui.moveTo(930,777)
+            pyautogui.click()
 
 # Push your Name and Password to the Website and login
 username = '[your username]'
@@ -78,9 +76,13 @@ try:
     WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'//*[@id="mount_0_0_St"]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div')))
     driver.find_element('xpath','//*[@id="mount_0_0_DI"]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[1]/div/div[3]/div[3]/div/div[1]/div/div[2]/div[1]/span').click()
 except:
-    time.sleep(1)                           
-    pyautogui.moveTo(965,759)
-    pyautogui.click()
+    try:
+        driver.find_element('xpath',"//*[text()='Jetzt nicht']").click() # This line seems to work best in the German internet
+    except Exception as e:
+        print(repr(e))
+        time.sleep(1)                           
+        pyautogui.moveTo(965,759)
+        pyautogui.click()
 
 # Save login informations? No!
 try:
@@ -88,22 +90,29 @@ try:
     driver.find_element('xpath','//*[@id="mount_0_0_St"]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]/section/main/div/div/div/div/button').click()
     print('first')
 except:
-   time.sleep(1)
-   pyautogui.moveTo(1092,638)
-   pyautogui.click()
+    try:
+        driver.find_element('xpath',"//*[text()='Jetzt nicht']").click()
+    except Exception as e:
+        print(repr(e))
+        time.sleep(1)  
+        pyautogui.moveTo(1092,638)
+        pyautogui.click()        
 
 # (de)activate notifications
-time.sleep(3)
-try:
+try: 
     WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH,'//*[@id="mount_0_0_yg"]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/button[2]')))
     driver.find_element('xpath','//*[@id="mount_0_0_yg"]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/button[2]').click()
 except:
-    time.sleep(1)
-    pyautogui.moveTo(942,775)
-    pyautogui.click()
+    try:
+        driver.find_element('xpath',"//*[text()='Jetzt nicht']").click()
+    except:
+        time.sleep(1)
+        pyautogui.moveTo(942,775)
+        pyautogui.click() 
 
 ###############################################################################    
 # Searching Process
+
 # Activate searchbutton
 target = 'libertarian_monk'
 try:
