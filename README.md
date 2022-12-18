@@ -22,3 +22,9 @@ I've written this code to observe german corporate Social Media profiles. It may
 - searching for and getting on a profile
 - collection of the profile stats
 - saving the data in DataFrames 
+- scrolling down the feed until you reach a specific date
+
+- Bonus:
+  - Follow
+  - Like
+  - Comment
