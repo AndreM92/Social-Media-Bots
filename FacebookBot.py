@@ -21,25 +21,32 @@ import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-##############################################################################
-# I'm setting the driver for Selenium
-driver = webdriver.Chrome('[path to your driver]\chromedriver.exe')
-driver.get('https://www.facebook.com/')
-driver.maximize_window()
-
-# Click through cookie-banner
-try:
-    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'_4t2a')))
-    driver.find_element('xpath','/html/body/div[3]/div[2]/div/div/div/div/div[3]/button[1]').click()
-except:
+# Driverbug function
+def fixDriverbug():
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
     driver.maximize_window()
-    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'_4t2a')))
-    driver.find_element('xpath','/html/body/div[3]/div[2]/div/div/div/div/div[3]/button[1]').click()
+    driver.get(loginpage)
+    time.sleep(1)
+    if loginpage != driver.current_url:
+        print('There is something wrong with the page')
+        
+###############################################################################
+# Login process
+# Get to the login page
+driver = webdriver.Chrome('[path to your driver]\chromedriver.exe')
+driver.maximize_window()
+loginpage = r'https://www.facebook.com/'
+driver.get(loginpage)
+time.sleep(1)
+if loginpage != driver.current_url:
+    fixDriverbug()
     
-##############################################################################
+# Click through the first cookie-banner
+WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'_3ixn')))
+driver.find_element('xpath','/html/body/div[3]/div[2]/div/div/div/div/div[3]/button[1]').click()
+
 # Push your Name and Password to the Website and login
 username = '[your username]'
 password = '[your password]'
@@ -53,76 +60,103 @@ def login(username,password):
     pwslot.clear()
     pwslot.send_keys(password)
     driver.find_element('xpath','/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]/button').click()
-    
+
 try:
     login(username,password)
 except:
     try:
         time.sleep(1)
         login(username,password)
-    except Exception as e: 
-    print('There is something wrong with the page')
-    print(repr(e))
+    except Exception as e:
+        print(repr(e))
 
-##############################################################################
+###############################################################################        
 # Searching process on Facebook
 examObject = 'comdirect'
-def search(examObject):
-    examObject = examObject
-    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'xe3v8dz')))
+
+def getprofile(examObject):
     try:
         searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
     except NoSuchElementException:
-        driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label').click()
-        searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
+        searchbox = driver.find_element(By.CSS_SELECTOR,"[aria-label^='Facebook durchsuchen']")
+    searchbox.click()
     searchbox.clear()
     searchbox.send_keys(examObject)
+    time.sleep(1)
     searchbox.send_keys(Keys.ENTER)
-search(examObject)
-
-# Getting on a profile turned out to be the biggest difficulty
-# hence we are trying three different approaches
-def getpage():
+    # Find and click on the first result
+    WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'x1heor9g')))
     try:
-        WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'xe3v8dz')))
-        driver.find_element(By.CLASS_NAME,'xt0psk2').click()
-    except ElementNotInteractableException:
-        print('try again')
-        time.sleep(1)
+        result1 = '//*[@id="mount_0_0_5D"]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div[1]/div/div/div/div/div/div/div/div/div[1]/div/div[2]/div/div[1]/h2/span/span/span/a/span[1]'
+        driver.find_element('xpath',result1).click()
+    except NoSuchElementException:
         try:
-            driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div[1]/div/div/div/div/div/div/div/div/div[1]/div/div[2]/div/div[1]/h2/span/span/span/a/span[1]').click()
-        except NoSuchElementException:
-            print('try again')
             time.sleep(1)
             soup = BeautifulSoup(driver.page_source,'lxml')   
             fburl = soup.find('span',class_='xt0psk2').find('a')['href']
+            print(fburl)
             driver.get(fburl)
-            time.sleep(2)
-getpage()
-    
+        except:
+            pyautogui.moveTo(806,301)
+            pyautogui.click()         
+            # Or insert your examObject manually
+            # driver.find_element(By.CSS_SELECTOR,"[aria-label^=comdirect]").click()
+        
+getprofile(examObject)
+
 # check if you are on the right page
 def checkpage():
-    currentUrl = driver.current_url
-    if not examObject in currentUrl:
-        if 'data_policy' in currentUrl:
+    try:
+        WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'x1heor9g')))
+    except:
+        pass
+    if not examObject in driver.current_url:
+        if 'data_policy' in driver.current_url:
             pyautogui.moveTo(1855,188)
             pyautogui.click()
         else:
             pyautogui.moveTo(25,62)
             pyautogui.click()
         WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'xe3v8dz')))
-        search(examObject)
-        time.sleep(1)
-        getpage()
+        getprofile(examObject)
         time.sleep(2)
 checkpage()
 
-################################################################################################################
+###############################################################################
 # Scrape the profile stats
-soup = BeautifulSoup(driver.page_source,'lxml')
-stats = soup.find_all('span',class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x6prxxf xvq8zen xo1l8bm xzsf02u')
-pagelikes,follower,visits = [stats[0].text.split(' ')[0],stats[2].text.split(' ')[0],stats[3].text.split(' ')[0]]
 
+class ScrapedProfile:
+    def __init__(self):
+        try:
+            WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'x1heor9g')))
+        except:
+            pass
+        # to prevent errors:
+        self.pagelikes,self.follower,self.visits,self.desc = ['' for i in range(0,4)]
+        self.url = driver.current_url
+        soup = BeautifulSoup(driver.page_source,'lxml')
+        try:
+            stats = [s.text for s in soup.find_all('span',class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x6prxxf xvq8zen xo1l8bm xzsf02u') if s.text[:1].isdigit()]
+            self.pagelikes = stats[0].split(' ')[0]
+            self.follower = stats[1].split(' ')[0]
+            self.visits = stats[2].split(' ')[0]
+            self.desc = soup.find_all('div',class_='x11i5rnm xat24cr x1mh8g0r x1vvkbs xdj266r')[1].text
+            self.links = [l['href'] for l in soup.find('div',class_='x1yztbdb').find_all('a',href=True)]
+        except Exception as e:
+            print(repr(e))
+            pass
+
+pr = ScrapedProfile()
+# I'm creating my first DataFrame with the profile stats
+data = [examObject,pr.url,pr.pagelikes,pr.follower,pr.visits,pr.desc,pr.links]
+dfProfiles = pd.DataFrame(columns = ['name','url','pagelikes','follower','visits','description','links'])
+
+# Run this for every profile you want to scrape (after moving to the target page)
+pr = ScrapedProfile()
+dfProfiles.loc[len(dfProfiles)] = data
+print(dfProfiles)
+
+###############################################################################
 # This codeblock scrolls until it reaches the Month 'Juni'
 def scroller():
     scrheight = driver.execute_script('return document.body.scrollHeight')
@@ -225,14 +259,13 @@ for i in allimagelinks:
         break
 
 ##############################################################################
-# Three Dataframes for three categories
-dfProfileStats = pd.DataFrame({'Name':[examObject],'pagelikes':[pagelikes], 'follower':[follower],'visits':[visits]})                
+# Two Dataframes for two categories             
 dfPostings = pd.DataFrame(postData, columns = ['date','content','likes','comments','shares','image links','links']) 
 dfEmotions = pd.DataFrame(emoData, columns = ['likes','heart','hug','laughter','sad','angry'])
 
 # Finally we save the Data in an excel file seperated in three sheets
 path = '[path to the place where you want to save this file]\FacebookResults.xlsx'
 with pd.ExcelWriter(path, engine='openpyxl') as writer:
-    dfProfileStats.to_excel(writer,sheet_name='Profile Stats')
+    dfProfiles.to_excel(writer,sheet_name='Profile Stats')
     dfPostings.to_excel(writer,sheet_name='Postings Data')
     dfEmotions.to_excel(writer,sheet_name='Postings Emotions') 
