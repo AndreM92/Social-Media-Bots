@@ -10,19 +10,23 @@ I've written this code to observe german corporate Social Media profiles. It may
 - searching for and getting on a profile
 - collection of the profile stats
 - scrolling down the feed until you reach a specific date
-- scraping of the date, content, images, links, pictures, likes, number of comments and number of shares of every posting
+  - The DateTime isn't displayed as text anymore, so I had to solve this problem with screenshots and image reading (Pillow/ Pytesseract)
+- scraping of the date, content, images, links, likes, number of comments and number of shares of every posting (you could face some problems because the HTML changed)
 - scraping of every specific emotional reaction
 - saving the data in DataFrames 
 - and finally an export of the DataFrames to an excel file 
 
-## InstagramBot (still incomplete but in the works)
+## InstagramBot
 
 - automated login
 - several ways to get around cookie banners
 - searching for and getting on a profile
 - collection of the profile stats
 - saving the data in DataFrames 
-- scrolling down the feed until you reach a specific date
+- scrolling down the feed until you reach a specific date (with the datetime module)
+- scraping of the date, content, images, links, pictures, likes and number of comments of every posting (this includes screenshots)
+- saving the data in DataFrames 
+- exporting the DataFrames to an excel file 
 
 - Bonus:
   - Follow
