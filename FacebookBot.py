@@ -10,7 +10,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.common.exceptions import *
+
 import pyautogui
+from pytesseract import pytesseract
+from PIL import Image
+
+from datetime import datetime
+import openpyxl
 
 from bs4 import BeautifulSoup
 import lxml
@@ -76,11 +82,15 @@ examObject = 'comdirect'
 
 def getprofile(examObject):
     try:
+        WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'x1i10hfl')))
+        # This somehow needs additional waittime
+        time.sleep(1)
         searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
     except NoSuchElementException:
         searchbox = driver.find_element(By.CSS_SELECTOR,"[aria-label^='Facebook durchsuchen']")
-    searchbox.click()
     searchbox.clear()
+    searchbox.click()
+    searchbox.send_keys(Keys.BACKSPACE)
     searchbox.send_keys(examObject)
     time.sleep(1)
     searchbox.send_keys(Keys.ENTER)
@@ -97,11 +107,18 @@ def getprofile(examObject):
             print(fburl)
             driver.get(fburl)
         except:
+            curl = driver.current_url
+            time.sleep(2)
             pyautogui.moveTo(806,301)
-            pyautogui.click()         
+            pyautogui.click()
+            if curl == driver.current_url:
+                pyautogui.click()
+            if curl == driver.current_url:
+                pyautogui.moveTo(806, 350)
+                pyautogui.click()
             # Or insert your examObject manually
             # driver.find_element(By.CSS_SELECTOR,"[aria-label^=comdirect]").click()
-        
+
 getprofile(examObject)
 
 # check if you are on the right page
@@ -132,8 +149,9 @@ class ScrapedProfile:
         except:
             pass
         # to prevent errors:
-        self.pagelikes,self.follower,self.visits,self.desc = ['' for i in range(0,4)]
+        self.pagelikes,self.follower,self.visits,self.desc,self.links = ['' for i in range(0,5)]
         self.url = driver.current_url
+        self.name = driver.current_url.split('om/')[1].replace('/', '')
         soup = BeautifulSoup(driver.page_source,'lxml')
         try:
             stats = [s.text for s in soup.find_all('span',class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x6prxxf xvq8zen xo1l8bm xzsf02u') if s.text[:1].isdigit()]
@@ -144,33 +162,101 @@ class ScrapedProfile:
             self.links = [l['href'] for l in soup.find('div',class_='x1yztbdb').find_all('a',href=True)]
         except Exception as e:
             print(repr(e))
-            pass
+        if len(self.visits) >= 1:
+            if self.visits[0] == '0':
+                self.visits = ''
+        if self.pagelikes == '':
+            try:
+                stats = soup.find('span',class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x xudqn12 x676frb x1lkfr7t x1lbecb7 xo1l8bm xi81zsa').text
+                stats2 = [i for i in stats.split('') if i.isdigit()]
+                print(stats2)
+                self.pagelikes = stats2[0]
+                self.follower = stats2[1]
+            except:
+                pass
 
 pr = ScrapedProfile()
-# I'm creating my first DataFrame with the profile stats
-data = [examObject,pr.url,pr.pagelikes,pr.follower,pr.visits,pr.desc,pr.links]
-dfProfiles = pd.DataFrame(columns = ['name','url','pagelikes','follower','visits','description','links'])
+# I'm creating an empty DataFrame with the profile stats
+header = ['name','url','pagelikes','follower','visits','description','links']
+dfProfiles = pd.DataFrame(columns = header)
 
 # Run this for every profile you want to scrape (after moving to the target page)
 pr = ScrapedProfile()
+data = [pr.name,pr.url,pr.pagelikes,pr.follower,pr.visits,pr.desc,pr.links]
 dfProfiles.loc[len(dfProfiles)] = data
-print(dfProfiles)
+
+# Example of target profiles
+targets= [
+'https://www.facebook.com/boscheinfachheizen',
+'https://www.facebook.com/BuderusDeutschland/',
+'https://www.facebook.com/daikin.germany/'
+]
+
+for i in targets:
+    driver.get(i)
+    time.sleep(5)
+    pr = ScrapedProfile()
+    data = [pr.name, pr.url, pr.pagelikes, pr.follower, pr.visits, pr.desc, pr.links]
+    dfProfiles.loc[len(dfProfiles)] = data
+
+# If you want to save the df right away
+path = "C:\\Users\\andre\\Documents\Python\Web_Scraper\Social-Media-Bots\FacebookResults.xlsx"
+with pd.ExcelWriter(path, engine='openpyxl') as writer:
+    dfProfiles.to_excel(writer,sheet_name='Profile Stats')
 
 ###############################################################################
-# This codeblock scrolls until it reaches the Month 'Juni'
-def scroller():
+# This codeblock scrolls until it reaches the Month 'Oktober' in the year of 2021
+month = 'Oktober'
+year = 2021
+
+def scroller(month,year):
     scrheight = driver.execute_script('return document.body.scrollHeight')
+    month = month.lower()
+    mDictEng = {'january': 1, 'february': 2, 'march': 3, 'april': 4, 'may': 5, 'june': 6, 'july': 7, \
+                'august': 8, 'september': 9, 'october': 10, 'november': 11, 'december': 12}
+    mDictGer = {'januar': 1, 'februar': 2, 'märz': 3, 'april': 4, 'mai': 5, 'juni': 6, 'juli': 7, \
+                'august': 8, 'september': 9, 'oktober': 10, 'november': 11, 'dezember': 12}
+    if month in mDictEng:
+        goal_m = mDictEng[month]
+    if month in mDictGer:
+        goal_m = mDictEng[month]
+
+    count = 0
     while True:
         driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
-        time.sleep(1)
+        time.sleep(3)
         newheight = driver.execute_script('return document.body.scrollHeight')
-        soup = BeautifulSoup(driver.page_source,'lxml')
-        lastpost = postings = soup.find_all('div',class_='x1ja2u2z xh8yej3 x1n2onr6 x1yztbdb')[-1]
-        lastdate = lastpost.find('span',class_='x4k7w5x x1h91t0o x1h9r5lt x1jfb8zj xv2umb2 x1beo9mf xaigb6o x12ejxvf x3igimt xarpa2k xedcshv x1lytzrv x1t2pt76 x7ja8zs x1qrby5j').text
-        if lastdate.split(' ')[-1] == 'Juni':
-                break
-scroller()
-    
+        saving_path = 'C:/Users/andre/Documents/Python/Web_Scraper/Social-Media-Bots/Images/currdate.png'
+        driver.save_screenshot(saving_path)
+        path_tes = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        pytesseract.tesseract_cmd = path_tes
+        img = Image.open(saving_path)
+        readtext = str(pytesseract.image_to_string(saving_path))
+        if not ' 20' in readtext:
+            time.sleep(2)
+            driver.save_screenshot(saving_path)
+            path_tes = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+            pytesseract.tesseract_cmd = path_tes
+            img = Image.open(saving_path)
+            readtext = str(pytesseract.image_to_string(saving_path))
+        # Default
+        curr_m = 12
+        for m in mDictEng:
+            if '. ' + m in readtext.lower():
+                curr_m = mDictEng[m]
+        for m in mDictGer:
+            if '. ' + m in readtext.lower():
+                curr_m = mDictGer[m]
+        if (str(year) in readtext or str(year-1) or str(year-2) in readtext) and curr_m <= goal_m:
+            break
+
+        count += 1
+        if count == 5:
+            break
+
+scroller(month,year)
+
+###############################################################################
 # Scrape the postings
 postData = []
 emoData = []
