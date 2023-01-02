@@ -78,23 +78,24 @@ except:
 
 ###############################################################################        
 # Searching process on Facebook
-examObject = 'comdirect'
+examObject = 'Bosch einfach heizen'
 
 def getprofile(examObject):
     try:
         WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'x1i10hfl')))
         # This somehow needs additional waittime
         time.sleep(1)
+    except:
+        time.sleep(3)
+    try:
         searchbox = driver.find_element('xpath','/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div/div/div/div/div/label/input')
     except NoSuchElementException:
         searchbox = driver.find_element(By.CSS_SELECTOR,"[aria-label^='Facebook durchsuchen']")
-    searchbox.clear()
     searchbox.click()
     searchbox.send_keys(Keys.BACKSPACE)
     searchbox.send_keys(examObject)
-    time.sleep(1)
     searchbox.send_keys(Keys.ENTER)
-    # Find and click on the first result
+    # Find the first result and click on it 
     WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'x1heor9g')))
     try:
         result1 = '//*[@id="mount_0_0_5D"]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div[1]/div/div/div/div/div/div/div/div/div[1]/div/div[2]/div/div[1]/h2/span/span/span/a/span[1]'
@@ -118,7 +119,7 @@ def getprofile(examObject):
                 pyautogui.click()
             # Or insert your examObject manually
             # driver.find_element(By.CSS_SELECTOR,"[aria-label^=comdirect]").click()
-
+            
 getprofile(examObject)
 
 # check if you are on the right page
@@ -127,7 +128,7 @@ def checkpage():
         WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'x1heor9g')))
     except:
         pass
-    if not examObject in driver.current_url:
+    if not examObject[:5].lower() in driver.current_url or 'search' in driver.current_url:
         if 'data_policy' in driver.current_url:
             pyautogui.moveTo(1855,188)
             pyautogui.click()
@@ -137,6 +138,7 @@ def checkpage():
         WebDriverWait(driver,5).until(EC.presence_of_element_located((By.CLASS_NAME,'xe3v8dz')))
         getprofile(examObject)
         time.sleep(2)
+        
 checkpage()
 
 ###############################################################################
@@ -169,7 +171,6 @@ class ScrapedProfile:
             try:
                 stats = soup.find('span',class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x xudqn12 x676frb x1lkfr7t x1lbecb7 xo1l8bm xi81zsa').text
                 stats2 = [i for i in stats.split('') if i.isdigit()]
-                print(stats2)
                 self.pagelikes = stats2[0]
                 self.follower = stats2[1]
             except:
@@ -205,8 +206,16 @@ with pd.ExcelWriter(path, engine='openpyxl') as writer:
     dfProfiles.to_excel(writer,sheet_name='Profile Stats')
 
 ###############################################################################
-# This codeblock scrolls until it reaches the Month 'Oktober' in the year of 2021
-month = 'Oktober'
+# Steps to scrape the details of every post:
+# 1. Make sure you are on the right page
+# 2. Scroll down to load the whole page until you reach a specific date
+# 3. Run the scraper Function
+
+# Shortcut to the pages with my list of links
+driver.get(targets[0])
+
+# This codeblock scrolls until it reaches the Month 'November' in the year of 2021
+month = 'November'
 year = 2021
 
 def scroller(month,year):
@@ -219,7 +228,7 @@ def scroller(month,year):
     if month in mDictEng:
         goal_m = mDictEng[month]
     if month in mDictGer:
-        goal_m = mDictEng[month]
+        goal_m = mDictGer[month]
 
     count = 0
     while True:
@@ -232,7 +241,7 @@ def scroller(month,year):
         pytesseract.tesseract_cmd = path_tes
         img = Image.open(saving_path)
         readtext = str(pytesseract.image_to_string(saving_path))
-        if not ' 20' in readtext:
+        if not ' 2022' in readtext or ' 2021' in readtext or ' 2021' in readtext:
             time.sleep(2)
             driver.save_screenshot(saving_path)
             path_tes = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -247,17 +256,101 @@ def scroller(month,year):
         for m in mDictGer:
             if '. ' + m in readtext.lower():
                 curr_m = mDictGer[m]
-        if (str(year) in readtext or str(year-1) or str(year-2) in readtext) and curr_m <= goal_m:
+        if (str(year) in readtext or str(year-1) in readtext) and curr_m <= goal_m:
             break
 
         count += 1
-        if count == 5:
+        if count == 50:
             break
 
 scroller(month,year)
 
+
+# Scrape the posts (new function)
+soup = BeautifulSoup(driver.page_source,'lxml')
+dates = [t.text for t in soup.find_all('text') if t.text[0].isdigit() == True]
+posts = soup.find_all('div',class_='x1n2onr6 x1ja2u2z')
+print('Posts: ' + str(len(posts)))
+
+def postscraper(date,p):
+    rawtext,content,likes,react,comments,shares,withlinks,images,imgdesc,video = ['' for i in range(0,10)]
+    try:
+        rawtext = p.text.split('geteilt')[1]
+    except:
+        pass
+    if rawtext == '':
+        rawtext = p.text
+    try:
+        content = p.find('div',class_='x11i5rnm xat24cr x1mh8g0r x1vvkbs xdj266r x126k92a').text
+    except:
+        content = str(p.find('div',class_='x11i5rnm xat24cr x1mh8g0r x1vvkbs xdj266r x126k92a'))
+    if 'htt' in rawtext or 'www' in rawtext or 'Webinar' in rawtext or 'Blog' in rawtext or '.com' in rawtext or '.de' in rawtext or 'Webinar' in rawtext or 'teilgenommen' in rawtext or 'interessiert' in rawtext or 'bit.ly' in rawtext:
+        withlinks = 'x'
+    try:
+        likes = p.find('span',class_='x16hj40l').text
+        react = p.find_all('span',class_='x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x xudqn12 x3x7a5m x6prxxf xvq8zen xo1l8bm xi81zsa')
+    except:
+        pass
+    if len(react) == 2:
+        comments = ''.join([n for n in react[0].text if n.isdigit()])
+        shares = react[1].text.split(' ')[0]
+    elif 'Kommentare' in str(react):
+        try:
+            comments = ''.join([n for n in react.text if n.isdigit()])
+        except:
+            try:
+                comments = react.span.text
+            except:
+                comments = react
+    elif 'geteilt' in str(react):
+        shares = react[0].text.split(' ')[0]
+    if len(p.find_all('div',class_='x10l6tqk x13vifvy')) > 1:
+        images = '2+'
+        try:
+            imgdesc = [i.find('a')['aria-label'] for i in p.find_all('div',class_='x6ikm8r x10wlt62 x10l6tqk')]
+        except:
+            try:
+                imgdesc = str(p.find('div',class_='x6ikm8r x10wlt62 x10l6tqk'))
+            except:
+                pass
+    elif p.find('img',class_='x1ey2m1c'):
+        images = 1
+        try:
+            imgdesc = p.find('img',class_='x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3 xl1xv1r')['alt']
+        except:
+            pass
+    appendix = str(p.find('div',class_='x1n2onr6'))
+    if 'video' and 'presentation' in appendix and images == '':
+        video = 1
+
+    return [date,content,likes,comments,shares,withlinks,video,images,imgdesc,rawtext]
+
+# Run the scraper for every post (with another breakpoint on the first occurrence of 'November' and '2021')
+pdata = []
+for p in posts:
+    i = posts.index(p) - (len(posts) - len(dates))
+    if i < 0:
+        date = ''
+    elif i >= 0:
+        date = dates[i]
+    print(date)
+    if 'November' in date and '2022' in date:
+        break
+    pdata.append(postscraper(date,p))
+
+# Create an empty DataFrame    
+header = ['date','content','likes','comments','shares','withlinks','video','images','imgdesc','rawtext']
+dfPostings = pd.DataFrame(pdata,columns=header)
+
+# Export to Excel
+name = driver.current_url.split('om/')[1].replace('/', '')
+path = 'C:\\Users\\andre\\Documents\Python\Web_Scraper\Social-Media-Bots\posts_'  + name + '.xlsx'
+with pd.ExcelWriter(path, engine='openpyxl') as writer:
+    dfPostings.to_excel(writer,sheet_name='posts')
+
+    
 ###############################################################################
-# Scrape the postings
+# Scrape the posts (old code that may not work due to changes of the date accessibility in the HTML
 postData = []
 emoData = []
 allimagelinks = []
