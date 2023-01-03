@@ -3,7 +3,7 @@ This project includes Social Media Bots with a focus on Data Scraping and Data A
 
 I've written this code to observe german corporate Social Media profiles. It may not work in different countries and for other types of accounts. This is the reason, why I didn't put the whole code in one class or function and split it in short sections instead.</br>
 
-## FacebookBot Features:
+## FacebookBot
 
 - automated login
 - several ways to get around cookie banners
@@ -23,7 +23,6 @@ I've written this code to observe german corporate Social Media profiles. It may
 - several ways to get around cookie banners
 - searching for and getting on a profile
 - collection of the profile stats
-- saving the data in DataFrames 
 - scrolling down the feed until you reach a specific date (with the datetime module)
 - scraping of the date, content, images, links, pictures, likes and number of comments of every posting (this includes screenshots)
 - saving the data in DataFrames 
@@ -33,3 +32,11 @@ I've written this code to observe german corporate Social Media profiles. It may
   - Follow
   - Like
   - Comment
+
+## TwitterBot.py (first version with basic features)
+
+- automated login
+- ways to get around different cookie banners
+- searching for and getting on a profile
+- collection of the profile stats
+- saving the data in DataFrames and export them to Excel
