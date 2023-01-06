@@ -132,49 +132,65 @@ path = "C:\\Users\\andre\\Documents\Python\Web_Scraper\Social-Media-Bots\Twitter
 with pd.ExcelWriter(path, engine='openpyxl') as writer:
     dfProfiles.to_excel(writer,sheet_name='Profile Stats')
     
-   
-# Scraper function for the posts
-# I will combine the Scraper with a scrolling function in the near future
-# It has to scrape the posts after every scroll and filter the results
+###############################################################################   
+# Scraper function for the posts with an integrated scrolling function
+# It scrapes the details of the posts after every scroll, filters the results and appends them to a datalist
+# I've set a limit of 200 scrolls and prompted it to stop when it reaches the year 2021 to prevent infinite scrolling.
 
 def PostScraper():
-    soup = BeautifulSoup(driver.page_source, 'lxml')
-    posts = soup.find_all('article')
-    date,tweet_type,content,likes,retweets,comments,video,images,imagelinks,links,rawtext = ['' for i in range(0,11)]
-
     postdata = []
-    for p in posts:
-        try:
-            rawtext = p.text
-        except:
-            pass
-        date = p.find('time')['datetime']
-        if 'Retweet' in rawtext:
-            tweet_type = 'retweet'
-        else:
-            tweet_type = 'tweet'
-        try:
-            content = p.find('div',class_='css-901oao r-18jsvk2 r-37j5jr r-a023e6 r-16dba41 r-rjixqe r-bcqeeo r-bnwqim r-qvutc0').text.replace('\n',' ').replace('  ', ' ')
-        except:
-            pass
-        interactions = [i.div['aria-label'] for i in p.find_all('div',class_='css-1dbjc4n r-18u37iz r-1h0z5md') if 'aria-label' in str(i.div)]
-        likes = interactions[-2].split(' ')[0]
-        retweets = interactions[-3].split(' ')[0]
-        comments = interactions[-4].split(' ')[0]
-        imagelinks = [i['src'] for i in p.find_all('img') if i['alt'] == 'Bild' or i['alt'] == 'Image']
-        images = len(imagelinks)
-        if images == '' or images == 0:
-            videohtml = p.find('div', class_='css-1dbjc4n r-13awgt0')
-            if 'transition-duration' in str(videohtml):
-                video = 'x'
-        links = [l['href'] for l in p.find_all('a', href=True) if 'http' in l['href']]
+    datelist = []
+    scrheight = driver.execute_script('return document.body.scrollHeight')
+    scrolls = 0
+    while True:
+        # Scraping function
+        soup = BeautifulSoup(driver.page_source, 'lxml')
+        posts = soup.find_all('article')
+        for p in posts:
+            date, tweet_type, content, likes, retweets, comments, video, images, imagelinks, links, rawtext = ['' for i in range(0, 11)]
+            date = p.find('time')['datetime']
+            try:
+                rawtext = p.text
+            except:
+                pass
+            if 'retweet' in rawtext.lower():
+                tweet_type = 'retweet'
+            else:
+                tweet_type = 'tweet'
+            try:
+                content = p.find('div',class_='css-901oao r-18jsvk2 r-37j5jr r-a023e6 r-16dba41 r-rjixqe r-bcqeeo r-bnwqim r-qvutc0').text.replace('\n',' ').replace('  ', ' ')
+            except:
+                pass
+            interactions = [i.div['aria-label'] for i in p.find_all('div',class_='css-1dbjc4n r-18u37iz r-1h0z5md') if 'aria-label' in str(i.div)]
+            likes = interactions[-2].split(' ')[0]
+            retweets = interactions[-3].split(' ')[0]
+            comments = interactions[-4].split(' ')[0]
+            imagelinks = [i['src'] for i in p.find_all('img') if not 'emoji' in i['src'] and not 'profile' in i['src'] and not '_video' in i['src']]
+            images = len(imagelinks)
+            html = str(p).lower()
+            if 'video' in html or 'livestream' in html:
+                video = 1
+            links = [l['href'] for l in p.find_all('a', href=True) if 'http' in l['href']]
 
-        postdata.append([date,tweet_type,content,likes,retweets,comments,video,images,imagelinks,links,rawtext])
+            row = [date,tweet_type,content,likes,retweets,comments,video,images,imagelinks,links,rawtext]
+            if str(date) not in datelist and '2021' not in str(date):
+                postdata.append(row)
+                datelist.append(str(date))
+
+        # Scrolling function by pixel numbers
+        # (if you scroll to the bottom of the page, some posts will be lost)
+        if scrolls >= 200 or '2021' in str(date):
+            break
+        driver.execute_script("window.scrollBy(0,2000)", "")
+        scrolls += 1
+        time.sleep(2)
 
     return postdata
 
 data = []
-# Scroll down and run the following line again or insert loop here ;)
+data = PostScraper()
+
+# Scroll and scrape further and append the posts:
 data = data + PostScraper()
 
 # Create a DataFrame when you're done scraping
