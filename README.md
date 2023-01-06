@@ -33,10 +33,12 @@ I've written this code to observe german corporate Social Media profiles. It may
   - Like
   - Comment
 
-## TwitterBot.py (first version with basic features)
+## TwitterBot
 
 - automated login
-- ways to get around different cookie banners
+- several ways to get around different cookie banners
 - searching for and getting on a profile
 - collection of the profile stats
-- saving the data in DataFrames and export them to Excel
+- A post scraper with an integrated scrolling function by pixel numbers that stops on a specific date
+- saving the data in DataFrames
+- exporting the DataFrames to an excel file 
