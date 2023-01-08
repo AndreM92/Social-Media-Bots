@@ -96,7 +96,7 @@ try:
 except:
     try:
         # This line seems to work best in the German internet
-        # In English it might work with 'not now' (or whatever is writen on the decline button)
+        # In English it might work with 'not now' (or whatever is written on the decline button)
         driver.find_element('xpath',"//*[text()='Jetzt nicht']").click()
     except Exception as e:
         print(repr(e))
