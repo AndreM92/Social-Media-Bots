@@ -47,7 +47,8 @@ I've written this code to observe german corporate Social Media profiles. It may
 
 This is just a little program to scrape:
 - The statistics of a YouTube account
-- The details of every video in a specific timeframe
+- The details of every video in a specific timeframe</br>
+
 as well as:
 - crawling through YouTube
 - getting around cookie banners
