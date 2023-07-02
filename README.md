@@ -1,7 +1,7 @@
 # Social-Media-Bots
 This project includes Social Media Bots with a focus on Data Scraping and Data Analytics.</br>
 
-##InstaCrawler_file: A crawler for Instagram as an executable file 
+## InstaCrawler_file: A crawler for Instagram as an executable file 
 (written for German social media pages, but easily transferable to other languages)
 
 Instructions:
