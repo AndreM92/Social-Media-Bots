@@ -2,7 +2,7 @@
 This project includes Social Media Bots with a focus on Data Scraping and Data Analytics.</br>
 
 ## InstaCrawler_file: A crawler for Instagram as an executable file 
-(written for German social media pages, but easily transferable to other languages)
+(Written for German social media pages, but easily transferable to other languages)
 
 Instructions:
 1. Install all necessary Python modules
@@ -15,11 +15,11 @@ password: password
 in the folder
 Otherwise, the program will prompt for manual input
 5. Update company names and pages in the Excel file
-6. Create a Python link and modify it:
-   Example for "target" (location of Python.exe and location of the script):
+6. Create a Python link and modify it:</br>
+   Example for "target" (location of Python.exe and location of the script):</br>
    C:\Users\andre\Documents\Python\Python310_Interpreter\python.exe     
-   C:\Users\andre\Documents\Python\Web_Scraper\Social-Media-Bots\InstaCrawler_file\InstaCrawler.py
-   Example of "run in":
+   C:\Users\andre\Documents\Python\Web_Scraper\Social-Media-Bots\InstaCrawler_file\InstaCrawler.py</br>
+   Example of "run in":</br>
    C:\Users\andre\Documents\Python\Web_Scraper\Social-Media-Bots\InstaCrawler_file
 7. Click on the Python link and run the program
 
