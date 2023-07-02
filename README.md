@@ -17,11 +17,13 @@ Otherwise, the program will prompt for manual input
 5. Update company names and pages in the Excel file
 6. Create a Python link and modify it:</br>
    Example for "target" (location of Python.exe and location of the script):</br>
-   C:\Users\andre\Documents\Python\Python310_Interpreter\python.exe     
-   C:\Users\andre\Documents\Python\Web_Scraper\Social-Media-Bots\InstaCrawler_file\InstaCrawler.py</br>
+   C:\Users\andre\Documents\Python\Python310_Interpreter\python.exe C:\Users\andre\OneDrive\Desktop\IT-Projekte\GitHub\Social-Media-Bots-main\InstaCrawler_file
+-Media-Bots\InstaCrawler_file\InstaCrawler.py</br>
    Example of "run in":</br>
-   C:\Users\andre\Documents\Python\Web_Scraper\Social-Media-Bots\InstaCrawler_file
+   C:\Users\andre\OneDrive\Desktop\IT-Projekte\GitHub\Social-Media-Bots-main\InstaCrawler_file
+-Media-Bots\InstaCrawler_file
 7. Click on the Python link and run the program
+   For security reasons, I have limited the scraper to five posts per profile ;)
 
 I've written the following code to observe german corporate Social Media profiles. It may not work in different countries and for other types of accounts. This is the reason, why I didn't put the whole code in one class or function and split it in short sections instead.</br>
 
