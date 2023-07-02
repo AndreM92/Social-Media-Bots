@@ -1,7 +1,29 @@
 # Social-Media-Bots
 This project includes Social Media Bots with a focus on Data Scraping and Data Analytics.</br>
 
-I've written this code to observe german corporate Social Media profiles. It may not work in different countries and for other types of accounts. This is the reason, why I didn't put the whole code in one class or function and split it in short sections instead.</br>
+##InstaCrawler_file: A crawler for Instagram as an executable file 
+(written for German social media pages, but easily transferable to other languages)
+
+Instructions:
+1. Install all necessary Python modules
+2. Install or update Google Chrome Driver
+3. Download Chromedriver and save it in the same path while paying attention to the browser version (but select win32 despite 64)
+https://chromedriver.chromium.org/downloads
+4. Save "login data" as a text file with the content:
+username: username
+password: password
+in the folder
+Otherwise, the program will prompt for manual input
+5. Update company names and pages in the Excel file
+6. Create a Python link and modify it:
+   Example for "target" (location of Python.exe and location of the script):
+   C:\Users\andre\Documents\Python\Python310_Interpreter\python.exe     
+   C:\Users\andre\Documents\Python\Web_Scraper\Social-Media-Bots\InstaCrawler_file\InstaCrawler.py
+   Example of "run in":
+   C:\Users\andre\Documents\Python\Web_Scraper\Social-Media-Bots\InstaCrawler_file
+7. Click on the Python link and run the program
+
+I've written the following code to observe german corporate Social Media profiles. It may not work in different countries and for other types of accounts. This is the reason, why I didn't put the whole code in one class or function and split it in short sections instead.</br>
 
 ## FacebookBot
 
