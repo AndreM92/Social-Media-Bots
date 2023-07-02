@@ -22,7 +22,7 @@ Otherwise, the program will prompt for manual input
    Example of "run in":</br>
    C:\Users\andre\OneDrive\Desktop\IT-Projekte\GitHub\Social-Media-Bots-main\InstaCrawler_file
 -Media-Bots\InstaCrawler_file
-7. Click on the Python link and run the program
+7. Click on the Python link and run the program</br>
    For security reasons, I have limited the scraper to five posts per profile ;)
 
 I've written the following code to observe german corporate Social Media profiles. It may not work in different countries and for other types of accounts. This is the reason, why I didn't put the whole code in one class or function and split it in short sections instead.</br>
